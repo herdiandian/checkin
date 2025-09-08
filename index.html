@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Attendance Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    #result {
+      font-size: 24px;
+      font-weight: bold;
+      color: green;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Attendance Scanner</h2>
+  <div id="reader" style="width:300px"></div>
+  <div id="result"></div>
+
+  <script>
+    function showMessage(text) {
+      const result = document.getElementById("result");
+      result.innerText = text;
+      setTimeout(() => { result.innerText = ""; }, 5000); // clear after 5s
+    }
+
+    function logToSheet(url) {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          showMessage(`Welcome ${data.name} (${data.type})`);
+        })
+        .catch(() => showMessage("Error logging attendance"));
+    }
+
+    function onScanSuccess(decodedText) {
+      logToSheet(decodedText); // QR already contains logging URL
+    }
+
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>

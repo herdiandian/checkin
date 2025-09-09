@@ -8,6 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body, html {
       margin: 0;
@@ -21,15 +23,6 @@
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-    }
-    #result {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 400px;
-      z-index: 10;
     }
     #switchCameraBtn {
       position: absolute;
@@ -48,36 +41,44 @@
 </head>
 <body>
   <div id="reader"></div>
-  <div id="result"></div>
 
   <!-- Floating Switch Button -->
-  <button id="switchCameraBtn" class="btn btn-light">
-    🔄
-  </button>
+  <button id="switchCameraBtn" class="btn btn-light">🔄</button>
 
   <script>
-    let currentCamera = "environment"; // start with back camera
+    let currentCamera = "environment"; 
     let html5QrcodeScanner;
+    let lastScanned = "";
 
-    function showMessage(text, type = "success") {
-      const result = document.getElementById("result");
-      result.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show text-center shadow-lg" role="alert">
-          ${text}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      `;
-      setTimeout(() => { result.innerHTML = ""; }, 5000);
+    function showPopup(name, type="success") {
+      Swal.fire({
+        icon: type,
+        title: `<span style="font-size:2.5rem;">${name}</span>`,
+        showConfirmButton: false,
+        timer: 4000,
+        background: "#f8f9fa",
+        backdrop: true
+      });
+    }
+
+    function logToSheet(url) {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          // Expecting JSON: { "name": "John Doe", "type": "Guest" }
+          showPopup(`${data.name} (${data.type})`, "success");
+        })
+        .catch(() => {
+          showPopup("⚠️ Error logging attendance", "error");
+        });
     }
 
     function onScanSuccess(decodedText) {
-      // Just show the scanned QR text (avoid fetch CORS issues)
-      showMessage(`✅ Scanned: ${decodedText}`, "success");
+      if (decodedText === lastScanned) return; // prevent duplicate spam
+      lastScanned = decodedText;
 
-      // Optional: redirect if it's a URL
-      if (decodedText.startsWith("http")) {
-        window.open(decodedText, "_blank");
-      }
+      // Send scanned QR (URL from Apps Script Web App) to log attendance
+      logToSheet(decodedText);
     }
 
     async function startScanner(cameraFacing) {
@@ -96,7 +97,7 @@
         },
         onScanSuccess
       ).catch(err => {
-        showMessage("⚠️ Camera not available", "danger");
+        Swal.fire("⚠️ Camera not available", "", "error");
       });
     }
 

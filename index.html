@@ -64,6 +64,7 @@
     let lastScanned = "";
     let lastName = "";
     let lastType = "";
+    let app_id = "AKfycbw_GSMkL4vuPbFGdjH8fvfeEdR71MFfUFcc613CmoO7k0A2lthOP-_xIvMIEWK5-0rQ";
 
     function showPopup(name, type, status="success") {
       Swal.fire({
@@ -77,7 +78,9 @@
       });
     }
 
-    function logToSheet(url) {
+    function logToSheet(data) {
+      url = 'https://script.google.com/macros/s/'+app_id+'/exec?'+data;
+
       fetch(url)
         .then(res => res.json())
         .then(data => {

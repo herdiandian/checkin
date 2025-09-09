@@ -22,7 +22,13 @@
     #reader {
       width: 100vw;
       height: 100vh;
-      object-fit: cover;
+      position: relative;
+    }
+    /* Force video feed to cover full screen (fix black bar issue on phones) */
+    #reader video {
+      object-fit: cover !important;
+      width: 100% !important;
+      height: 100% !important;
     }
     #switchCameraBtn {
       position: absolute;
@@ -35,25 +41,32 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      background: white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    #switchCameraBtn img {
+      width: 28px;
+      height: 28px;
     }
   </style>
 </head>
 <body>
   <div id="reader"></div>
 
-  <!-- Floating Switch Button -->
-  <button id="switchCameraBtn" class="btn btn-light">🔄</button>
+  <!-- Floating Switch Button with SVG -->
+  <button id="switchCameraBtn">
+    <img src="reverse-camera-solid.svg" alt="Switch Camera">
+  </button>
 
   <script>
     let currentCamera = "environment"; 
     let html5QrcodeScanner;
     let lastScanned = "";
 
-    function showPopup(name, type="success") {
+    function showPopup(message, type="success") {
       Swal.fire({
         icon: type,
-        title: `<span style="font-size:2.5rem;">${name}</span>`,
+        title: `<span style="font-size:2.5rem;">${message}</span>`,
         showConfirmButton: false,
         timer: 4000,
         background: "#f8f9fa",
@@ -65,7 +78,7 @@
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          // Expecting JSON: { "name": "John Doe", "type": "Guest" }
+          // Expect JSON: { "name": "John Doe", "type": "Guest" }
           showPopup(`${data.name} (${data.type})`, "success");
         })
         .catch(() => {
@@ -74,10 +87,13 @@
     }
 
     function onScanSuccess(decodedText) {
-      if (decodedText === lastScanned) return; // prevent duplicate spam
+      if (decodedText === lastScanned) {
+        showPopup("Already Scanned", "info");
+        return;
+      }
       lastScanned = decodedText;
 
-      // Send scanned QR (URL from Apps Script Web App) to log attendance
+      // Send scanned QR to Google Sheet endpoint
       logToSheet(decodedText);
     }
 

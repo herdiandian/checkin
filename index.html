@@ -78,9 +78,9 @@
       });
     }
 
-    function logToSheet(data) {
-      url = 'https://script.google.com/macros/s/'+app_id+'/exec?'+data;
-
+    function logToSheet(id) {
+      url = 'https://script.google.com/macros/s/'+app_id+'/exec?id='+id;
+      // https://script.google.com/macros/s/AKfycbw_GSMkL4vuPbFGdjH8fvfeEdR71MFfUFcc613CmoO7k0A2lthOP-_xIvMIEWK5-0rQ/exec?id=1
       fetch(url)
         .then(res => res.json())
         .then(data => {

@@ -62,11 +62,14 @@
     let currentCamera = "environment"; 
     let html5QrcodeScanner;
     let lastScanned = "";
+    let lastName = "";
+    let lastType = "";
 
-    function showPopup(message, type="success") {
+    function showPopup(name, type, status="success") {
       Swal.fire({
-        icon: type,
-        title: `<span style="font-size:2.5rem;">${message}</span>`,
+        icon: status,
+        title: `<div style="font-size:2.5rem; font-weight:bold;">${name}</div>`,
+        html: `<div style="font-size:1.5rem; color:#444;">${type}</div>`,
         showConfirmButton: false,
         timer: 4000,
         background: "#f8f9fa",
@@ -78,17 +81,23 @@
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          // Expect JSON: { "name": "John Doe", "type": "Guest" }
-          showPopup(`${data.name} (${data.type})`, "success");
+          lastName = data.name;
+          lastType = data.type;
+          showPopup(data.name, data.type, "success");
         })
         .catch(() => {
-          showPopup("⚠️ Error logging attendance", "error");
+          showPopup("Error", "⚠️ Failed to log attendance", "error");
         });
     }
 
     function onScanSuccess(decodedText) {
       if (decodedText === lastScanned) {
-        showPopup("Already Scanned", "info");
+        // Show "Already Scanned" with same name/type
+        if (lastName && lastType) {
+          showPopup(lastName, `${lastType} (Already Scanned)`, "info");
+        } else {
+          showPopup("Already Scanned", "", "info");
+        }
         return;
       }
       lastScanned = decodedText;

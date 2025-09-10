@@ -48,6 +48,29 @@
       width: 28px;
       height: 28px;
     }
+    /* Loading overlay */
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(3px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 25;
+      display: none;
+    }
+    #loadingOverlay img {
+      width: 90px;
+      height: 90px;
+      animation: spin 10s linear infinite;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -57,6 +80,11 @@
   <button id="switchCameraBtn">
     <img src="reverse-camera-solid.svg" alt="Switch Camera">
   </button>
+
+  <!-- Loading Overlay with custom SVG -->
+  <div id="loadingOverlay">
+    <img src="spinner-ring.svg" alt="Loading...">
+  </div>
 
   <script>
     let currentCamera = "environment"; 
@@ -78,17 +106,28 @@
       });
     }
 
+    function showLoading() {
+      document.getElementById("loadingOverlay").style.display = "flex";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingOverlay").style.display = "none";
+    }
+
     function logToSheet(id) {
+      showLoading();
       url = 'https://script.google.com/macros/s/'+app_id+'/exec?id='+id;
       // https://script.google.com/macros/s/AKfycbw_GSMkL4vuPbFGdjH8fvfeEdR71MFfUFcc613CmoO7k0A2lthOP-_xIvMIEWK5-0rQ/exec?id=1
       fetch(url)
         .then(res => res.json())
         .then(data => {
+          hideLoading();
           lastName = data.name;
           lastType = data.type;
           showPopup(data.name, data.type, "success");
         })
         .catch(() => {
+          hideLoading();
           showPopup("Error", "⚠️ Failed to log attendance", "error");
         });
     }

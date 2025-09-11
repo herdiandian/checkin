@@ -209,15 +209,25 @@
       Swal.fire({
         title: "Input Tamu",
         html: `
-          <input id="manualName" class="swal2-input" placeholder="Nama">
-          <input id="manualType" class="swal2-input" placeholder="Alamat">
+          <div class="container text-start">
+            <div class="mb-3">
+              <label for="manualName" class="form-label">Nama</label>
+              <input type="text" id="manualName" class="form-control" placeholder="">
+            </div>
+            <div class="mb-3">
+              <label for="manualType" class="form-label">Alamat</label>
+              <input type="text" id="manualType" class="form-control" placeholder="">
+            </div>
+          </div>
         `,
         focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Simpan",
         preConfirm: () => {
           const name = document.getElementById("manualName").value.trim();
           const type = document.getElementById("manualType").value.trim();
           if (!name || !type) {
-            Swal.showValidationMessage("Please fill all fields");
+            Swal.showValidationMessage("Harap mengisi data");
             return false;
           }
           return { name, type };

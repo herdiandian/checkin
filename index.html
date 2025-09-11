@@ -30,11 +30,10 @@
       width: 100% !important;
       height: 100% !important;
     }
-    #switchCameraBtn {
+    .floating-btn {
       position: absolute;
       bottom: 20px;
-      right: 20px;
-      z-index: 20;
+      z-index: 30;
       border-radius: 50%;
       width: 60px;
       height: 60px;
@@ -44,9 +43,15 @@
       background: white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    #switchCameraBtn img {
+    .floating-btn img {
       width: 28px;
       height: 28px;
+    }
+    #switchCameraBtn {
+      right: 20px;
+    }
+    #manualBtn {
+      right: 100px;
     }
     /* Loading overlay */
     #loadingOverlay {
@@ -77,8 +82,11 @@
   <div id="reader"></div>
 
   <!-- Floating Switch Button with SVG -->
-  <button id="switchCameraBtn">
+  <button id="switchCameraBtn" class="floating-btn">
     <img src="reverse-camera-solid.svg" alt="Switch Camera">
+  </button>
+  <button id="manualBtn" class="floating-btn">
+    <strong style="font-size:2rem;line-height:1;">+</strong>
   </button>
 
   <!-- Loading Overlay with custom SVG -->
@@ -116,7 +124,7 @@
 
     function logToSheet(id) {
       showLoading();
-      url = 'https://script.google.com/macros/s/'+app_id+'/exec?id='+id;
+      const url = 'https://script.google.com/macros/s/'+app_id+'/exec?id='+id;
       // https://script.google.com/macros/s/AKfycbw_GSMkL4vuPbFGdjH8fvfeEdR71MFfUFcc613CmoO7k0A2lthOP-_xIvMIEWK5-0rQ/exec?id=1
       fetch(url)
         .then(res => res.json())
@@ -131,6 +139,25 @@
           showPopup("Error", "⚠️ Failed to log attendance", "error");
         });
     }
+
+    function logManual(name, type) {
+      showLoading();
+      const url = 'https://script.google.com/macros/s/'+app_id+'/exec?name='+encodeURIComponent(name)+'&type='+encodeURIComponent(type);
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          hideLoading();
+          lastName = data.name;
+          lastType = data.type;
+          showPopup(data.name, data.type, "success");
+        })
+        .catch(() => {
+          hideLoading();
+          showPopup("Error", "⚠️ Failed to log manual entry", "error");
+        });
+    }
+
+
 
     function onScanSuccess(decodedText) {
       if (decodedText === lastScanned) {
@@ -176,10 +203,34 @@
       currentCamera = currentCamera === "environment" ? "user" : "environment";
       startScanner(currentCamera);
     });
+
+    // Manual input button
+    document.getElementById("manualBtn").addEventListener("click", () => {
+      Swal.fire({
+        title: "Input Tamu",
+        html: `
+          <input id="manualName" class="swal2-input" placeholder="Nama">
+          <input id="manualType" class="swal2-input" placeholder="Alamat">
+        `,
+        focusConfirm: false,
+        preConfirm: () => {
+          const name = document.getElementById("manualName").value.trim();
+          const type = document.getElementById("manualType").value.trim();
+          if (!name || !type) {
+            Swal.showValidationMessage("Please fill all fields");
+            return false;
+          }
+          return { name, type };
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          logManual(result.value.name, result.value.type);
+        }
+      });
+    });
   </script>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

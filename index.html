@@ -76,6 +76,13 @@
     @keyframes spin {
       100% { transform: rotate(360deg); }
     }
+
+    .swal2-xl-popup {
+      width: 90% !important;
+      max-width: 600px !important;
+      padding: 20px !important;
+    }
+
   </style>
 </head>
 <body>
@@ -221,6 +228,10 @@
         focusConfirm: false,
         showCancelButton: false,
         confirmButtonText: "Simpan",
+        customClass: {
+          popup: "swal2-xl-popup",
+          confirmButton: "btn btn-success btn-lg px-5",
+        },
         preConfirm: () => {
           const name = document.getElementById("manualName").value.trim();
           const type = document.getElementById("manualType").value.trim();
@@ -242,6 +253,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 

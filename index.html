@@ -189,11 +189,11 @@
           hideLoading();
           lastName = data.name;
           lastType = data.type;
-          up(data.name, data.type, "success");
+          showPopupName(data.name, data.type);
         })
         .catch(() => {
           hideLoading();
-          up("Error", "⚠️ Failed to log attendance", "error");
+          showPopup("Error", "⚠️ Failed to log attendance", "error");
         });
     }
 
@@ -299,4 +299,3 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
